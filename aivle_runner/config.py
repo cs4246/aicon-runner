@@ -10,8 +10,7 @@ broker_host = os.getenv("CELERY_BROKER_HOST")
 broker_port = os.getenv("CELERY_BROKER_PORT")
 
 aivle_url = os.getenv("AIVLE_URL")
-aivle_username = os.getenv("AIVLE_USERNAME")
-aivle_password = os.getenv("AIVLE_PASSWORD")
+aivle_auth_token = os.getenv("AIVLE_AUTH_TOKEN")
 aivle_force_https = bool(int(os.getenv("AIVLE_FORCE_HTTPS", 0)))
 aivle_verify = bool(int(os.getenv("AIVLE_VERIFY", 0)))
 

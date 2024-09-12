@@ -10,7 +10,7 @@ from . import config, slurm
 STATUS_ERROR = 'E'
 STATUS_DONE = 'D'
 
-aivle = Aivle(config.aivle_url, auth=(config.aivle_username, config.aivle_password),
+aivle = Aivle(config.aivle_url, auth_token=config.aivle_auth_token,
               force_https=config.aivle_force_https, verify=config.aivle_verify)
 
 @shared_task

@@ -8,9 +8,9 @@ from .utils import hash_file_path
 
 
 class BaseAPI:
-    def __init__(self, auth: Optional[tuple[str, str]] = None, verify: bool = False, force_https: bool = False):
+    def __init__(self, auth_token: Optional[str] = None, verify: bool = False, force_https: bool = False):
         self.session = requests.Session()
-        self.session.auth = auth
+        self.session.headers = {"Authorization": f"Token {auth_token}"}
         self.verify = verify
         self.force_https = force_https
 

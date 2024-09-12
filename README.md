@@ -13,7 +13,7 @@ This version is a rewrite of the original aiVLE Runner, now utilizing Celery for
 
 1. Duplicate the `example.env` file to create a new `.env` file.
 2. Update the values in the `.env` file according to your aivle-web configuration.
-3. Ensure that the user `AIVLE_USERNAME` is registered as an admin in the system.
+3. Ensure that the `AIVLE_AUTH_TOKEN` is associated with an admin user in the system.
 4. Install the requirements:
 ```
 pip install -r requirements.txt
