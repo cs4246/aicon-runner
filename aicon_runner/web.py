@@ -29,7 +29,7 @@ class BaseAPI:
         return response
 
 
-class Aivle(BaseAPI):
+class AiconAPI(BaseAPI):
     jobs_url = "jobs"
 
     def __init__(self, url: str, **kwargs):

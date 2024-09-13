@@ -3,19 +3,19 @@ import os
 import traceback
 
 from celery import shared_task
-from .web import Aivle
+from .web import AiconAPI
 from .utils import safe_filename
 from . import config, slurm
 
 STATUS_ERROR = 'E'
 STATUS_DONE = 'D'
 
-aivle = Aivle(config.aivle_url, auth_token=config.aivle_auth_token,
-              force_https=config.aivle_force_https, verify=config.aivle_verify)
+aicon = AiconAPI(config.aicon_url, auth_token=config.aicon_auth_token,
+                 force_https=config.aicon_force_https, verify=config.aicon_verify)
 
 @shared_task
 def evaluate(task_data: dict, submission_data: dict):
-    response = aivle.job_run(submission_data)
+    response = aicon.job_run(submission_data)
     response.raise_for_status()
 
     # Define filepaths
@@ -25,9 +25,9 @@ def evaluate(task_data: dict, submission_data: dict):
 
     try:
         # Download packages
-        response = aivle.download_package(task_data, testsuite_path)
+        response = aicon.download_package(task_data, testsuite_path)
         response.raise_for_status()
-        response = aivle.download_package(submission_data, submission_path)
+        response = aicon.download_package(submission_data, submission_path)
         response.raise_for_status()
 
         # Run
@@ -62,5 +62,5 @@ def evaluate(task_data: dict, submission_data: dict):
 
     submission_data['notes'] = json.dumps(notes)
 
-    response = aivle.job_end(submission_data)
+    response = aicon.job_end(submission_data)
     assert response.ok, response

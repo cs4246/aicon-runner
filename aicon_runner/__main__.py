@@ -1,7 +1,7 @@
 from .celery import app
 import argparse
 
-parser = argparse.ArgumentParser(description='aiVLE Runner')
+parser = argparse.ArgumentParser(description='aicon Runner')
 parser.add_argument('-c', '--concurrency', type=int, default=None)
 args = parser.parse_args()
 
