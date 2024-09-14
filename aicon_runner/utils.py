@@ -1,5 +1,8 @@
 import hashlib
 
+def hash_str(text: str) -> str:
+    return hashlib.md5(text.encode()).hexdigest()
+
 def hash_file(file: str, block_size: int = 65536) -> str:
     hasher = hashlib.md5()
     while True:

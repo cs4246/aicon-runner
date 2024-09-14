@@ -2,8 +2,7 @@ import requests
 import shutil
 import os
 
-from typing import Literal
-from typing_extensions import Optional
+from typing import Literal, Optional
 from .utils import hash_file_path
 
 

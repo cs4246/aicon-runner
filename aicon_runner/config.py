@@ -20,14 +20,18 @@ runner_testsuites_path=os.getenv("RUNNER_TESTSUITES_PATH", "./testsuites")
 runner_submissions_path=os.getenv("RUNNER_SUBMISSIONS_PATH", "./submissions")
 
 slurm_enable=bool(int(os.getenv("SLURM_ENABLE")))
-slurm_venv_directory=os.getenv("SLURM_VENV_DIRECTORY", "./venvs")
+slurm_venv_directory=os.getenv("SLURM_VENV_DIRECTORY", None)
 slurm_venv_time_limit=int(os.getenv("SLURM_VENV_TIME_LIMIT"))
 slurm_venv_force=bool(int(os.getenv("SLURM_VENV_FORCE")))
 slurm_run_partition=os.getenv("SLURM_RUN_PARTITION", "normal")
 slurm_run_time_limit=int(os.getenv("SLURM_RUN_TIME_LIMIT"))
 slurm_run_memory_limit=int(os.getenv("SLURM_RUN_MEMORY_LIMIT"))
 
+if slurm_venv_directory == "":
+    slurm_venv_directory = None
+
 os.makedirs(runner_runs_path, exist_ok=True)
 os.makedirs(runner_testsuites_path, exist_ok=True)
 os.makedirs(runner_submissions_path, exist_ok=True)
-os.makedirs(slurm_venv_directory, exist_ok=True)
+if slurm_venv_directory is not None:
+    os.makedirs(slurm_venv_directory, exist_ok=True)

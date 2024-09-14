@@ -44,7 +44,7 @@ def evaluate(task_data: dict, submission_data: dict):
             venv_base_dir = config.slurm_venv_directory,
             force = config.slurm_venv_force,
             use_slurm = config.slurm_enable,
-            create_tmp_venv = config.slurm_venv_directory != "",
+            slurm_time_limit = config.slurm_run_time_limit,
         )
         notes = result["test_cases"]
         submission_data['point'] = result['point']
