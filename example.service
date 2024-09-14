@@ -1,0 +1,10 @@
+[Unit]
+Description=aicon Runner
+
+[Service]
+WorkingDirectory=%h/aicon-runner/
+ExecStart=%h/aicon-runner/.venv/bin/python -m aicon_runner --concurrency 5
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
