@@ -45,6 +45,7 @@ def evaluate(task_data: dict, submission_data: dict):
             force = config.slurm_venv_force,
             use_slurm = config.slurm_enable,
             slurm_time_limit = config.slurm_run_time_limit,
+            slurm_memory_limit = config.slurm_run_memory_limit,
         )
         notes = result["test_cases"]
         submission_data['point'] = result['point']

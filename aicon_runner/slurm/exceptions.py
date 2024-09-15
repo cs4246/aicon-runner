@@ -1,11 +1,26 @@
+import builtins
+import inspect
+
 class MalformedOutputError(Exception):
     pass
 
-class RunnerError(Exception):
+class EvaluationError(Exception):
     pass
 
-class SuiteInstallError(Exception):
+class TaskError(Exception):
     pass
 
-class AgentInstallError(Exception):
+class SubmissionError(Exception):
     pass
+
+class TimeLimitExceeded(Exception):
+    pass
+
+class MemoryLimitExceeded(Exception):
+    pass
+
+class PackageError(Exception):
+    pass
+
+builtin_exceptions = [obj for name, obj in inspect.getmembers(builtins, inspect.isclass)
+                      if issubclass(obj, BaseException) and obj is not BaseException]

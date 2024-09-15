@@ -6,7 +6,8 @@ import json
 import time
 import logging
 from ..utils import hash_str, hash_file_path
-from .exceptions import MalformedOutputError, RunnerError, SuiteInstallError, AgentInstallError
+from .exceptions import MalformedOutputError, EvaluationError, TaskError, SubmissionError, \
+                        TimeLimitExceeded, MemoryLimitExceeded, PackageError, builtin_exceptions
 from typing import Optional
 
 
@@ -20,6 +21,7 @@ SCRIPT_SUBMIT_ENV_TMP = os.path.join(SCRIPTS_DIR, 'submit-env-tmp.sh')
 def to_slurm_time(seconds: Optional[int] = None) -> str:
     if seconds is None:
         return ''
+    assert seconds % 60 == 0, "Slurm can only take time multiplies of 1 minute"
     assert seconds <= 24*3600, f"Time conversion only works up to 24 hours: {seconds}"
     slurm_time = time.strftime('%H:%M:%S', time.gmtime(seconds))
     return slurm_time
@@ -79,6 +81,7 @@ def run(
         force: bool = False,
         use_slurm: bool = True,
         slurm_time_limit: Optional[int] = 3600,
+        slurm_memory_limit: Optional[int] = 3600,
     ) -> dict:
     run_id = f"{testsuite_id}-{submission_id}" if testsuite_id is not None and submission_id is not None else str(time.time())
     output_dir = os.path.join(base_dir, run_id)
@@ -94,28 +97,27 @@ def run(
         'stderr_file': stderr_file,
         'output_json_path': output_json_path,
         'partition': partition,
-        'slurm_memory_limit': to_slurm_memory(memory_limit),
+        'slurm_memory_limit': to_slurm_memory(slurm_memory_limit), # set the minimum memory of the job
+        'slurm_time_limit': to_slurm_time(slurm_time_limit), # set the time limit of the job, multiple of 1 minute
+        'run_memory_limit': str(memory_limit),
+        'run_time_limit': str(time_limit),
     }
 
     if venv_base_dir is None:
         config['env_name'] = hash_str(run_id)
         config['packages'] = ' '.join([runner_kit_path, testsuite_path, submission_path])
-        config['slurm_time_limit'] = to_slurm_time(slurm_time_limit)
-        config['run_time_limit'] = str(time_limit)
     else:
-        config['slurm_time_limit'] = to_slurm_time(slurm_time_limit)
-        config['run_time_limit'] = str(time_limit)
         base_env_name = hash_file_path(testsuite_path)
         try:
             config['base_env_dir'] = create_venv(base_env_name, packages=[runner_kit_path, testsuite_path], base_dir=venv_base_dir, force=force, use_slurm=use_slurm)
         except Exception as e:
-            raise SuiteInstallError(e)
+            raise TaskError(e)
 
         env_name = hash_file_path(submission_path)
         try:
             config['overlay_env_dir'] = create_venv(env_name, packages=[submission_path], base_dir=venv_base_dir, force=force, use_slurm=use_slurm)
         except Exception as e:
-            raise AgentInstallError(e)
+            raise SubmissionError(e)
 
     print(config)
 
@@ -146,8 +148,18 @@ def run(
 
     print(stdout if return_code == 0 else stderr)
 
-    if return_code:
-        raise RunnerError(stdout, stderr)
+    if return_code != 0:
+        if 'timeout: sending signal' in stderr or 'DUE TO TIME LIMIT' in stderr:
+            raise TimeLimitExceeded(stderr)
+        elif 'MemoryError' in stderr or 'DUE TO MEMORY LIMIT' in stderr:
+            raise MemoryLimitExceeded(stderr)
+        elif 'not appear to be a Python project' in stderr:
+            raise PackageError(stderr)
+        else:
+            for exception in builtin_exceptions:
+                if exception.__name__ in stderr:
+                    raise exception(stderr)
+            raise EvaluationError(stderr)
 
     try:
         with open(output_json_path, 'r') as f:
