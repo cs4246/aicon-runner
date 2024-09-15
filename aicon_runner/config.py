@@ -14,9 +14,9 @@ aicon_auth_token = os.getenv("AICON_AUTH_TOKEN")
 aicon_force_https = bool(int(os.getenv("AICON_FORCE_HTTPS", 0)))
 aicon_verify = bool(int(os.getenv("AICON_VERIFY", 0)))
 
-runner_runner_kit_path=os.getenv("RUNNER_RUNNER_KIT_PATH", "git+https://github.com/cs4246/aicon-runner-kit.git")
+runner_evaluator_path=os.getenv("RUNNER_EVALUATOR_PATH", "git+https://github.com/cs4246/aicon-evaluator.git")
 runner_runs_path=os.getenv("RUNNER_RUNS_PATH", "./runs")
-runner_testsuites_path=os.getenv("RUNNER_TESTSUITES_PATH", "./testsuites")
+runner_tasks_path=os.getenv("RUNNER_TASKS_PATH", "./tasks")
 runner_submissions_path=os.getenv("RUNNER_SUBMISSIONS_PATH", "./submissions")
 
 slurm_enable=bool(int(os.getenv("SLURM_ENABLE")))
@@ -31,7 +31,7 @@ if slurm_venv_directory == "":
     slurm_venv_directory = None
 
 os.makedirs(runner_runs_path, exist_ok=True)
-os.makedirs(runner_testsuites_path, exist_ok=True)
+os.makedirs(runner_tasks_path, exist_ok=True)
 os.makedirs(runner_submissions_path, exist_ok=True)
 if slurm_venv_directory is not None:
     os.makedirs(slurm_venv_directory, exist_ok=True)

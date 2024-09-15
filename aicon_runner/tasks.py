@@ -19,25 +19,25 @@ def evaluate(task_data: dict, submission_data: dict):
     response.raise_for_status()
 
     # Define filepaths
-    testsuite_path = os.path.join(config.runner_testsuites_path, f"{safe_filename(task_data['name'])}-{task_data['id']}.zip")
+    task_path = os.path.join(config.runner_tasks_path, f"{safe_filename(task_data['name'])}-{task_data['id']}.zip")
     submission_path = os.path.join(config.runner_submissions_path, f"{submission_data['id']}.zip")
-    runner_kit_path = config.runner_runner_kit_path
+    evaluator_path = config.runner_evaluator_path
 
     try:
         # Download packages
-        response = aicon.download_package(task_data, testsuite_path)
+        response = aicon.download_package(task_data, task_path)
         response.raise_for_status()
         response = aicon.download_package(submission_data, submission_path)
         response.raise_for_status()
 
         # Run
         result = slurm.run(
-            testsuite_path,
+            task_path,
             submission_path,
-            runner_kit_path,
+            evaluator_path,
             time_limit = task_data["run_time_limit"] or config.slurm_run_time_limit,
             memory_limit = task_data["memory_limit"] or config.slurm_run_memory_limit,
-            testsuite_id = task_data["id"],
+            task_id = task_data["id"],
             submission_id = submission_data["id"],
             partition = task_data["partition_name"] or config.slurm_run_partition,
             gpus = task_data["gpus"],
@@ -48,7 +48,7 @@ def evaluate(task_data: dict, submission_data: dict):
             slurm_time_limit = config.slurm_run_time_limit,
             slurm_memory_limit = config.slurm_run_memory_limit,
         )
-        notes = result["test_cases"]
+        notes = result
         submission_data['point'] = result['point']
         submission_data['status'] = STATUS_DONE
     except Exception as e:

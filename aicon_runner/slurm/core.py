@@ -68,12 +68,12 @@ def create_venv(
 
 
 def run(
-        testsuite_path: str,
+        task_path: str,
         submission_path: str,
-        runner_kit_path: str,
+        evaluator_path: str,
         time_limit: Optional[int] = 600,
         memory_limit: Optional[int] = 0,
-        testsuite_id: Optional[int] = None,
+        task_id: Optional[int] = None,
         submission_id: Optional[int] = None,
         partition: str = "",
         gpus: Optional[str] = None,
@@ -84,7 +84,7 @@ def run(
         slurm_time_limit: Optional[int] = 3600,
         slurm_memory_limit: Optional[int] = 3600,
     ) -> dict:
-    run_id = f"{testsuite_id}-{submission_id}" if testsuite_id is not None and submission_id is not None else str(time.time())
+    run_id = f"{task_id}-{submission_id}" if task_id is not None and submission_id is not None else str(time.time())
     output_dir = os.path.join(base_dir, run_id)
     os.makedirs(output_dir, exist_ok=True)
     stdout_file = os.path.join(output_dir, 'stdout.log')
@@ -107,11 +107,11 @@ def run(
 
     if venv_base_dir is None:
         config['env_name'] = hash_str(run_id)
-        config['packages'] = ' '.join([runner_kit_path, testsuite_path, submission_path])
+        config['packages'] = ' '.join([evaluator_path, task_path, submission_path])
     else:
-        base_env_name = hash_file_path(testsuite_path)
+        base_env_name = hash_file_path(task_path)
         try:
-            config['base_env_dir'] = create_venv(base_env_name, packages=[runner_kit_path, testsuite_path], base_dir=venv_base_dir, force=force, use_slurm=use_slurm)
+            config['base_env_dir'] = create_venv(base_env_name, packages=[evaluator_path, task_path], base_dir=venv_base_dir, force=force, use_slurm=use_slurm)
         except Exception as e:
             raise TaskError(e)
 
@@ -176,29 +176,29 @@ if __name__ == '__main__':
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('testsuite_path')
+    parser.add_argument('task_path')
     parser.add_argument('submission_path')
-    parser.add_argument('runner_kit_path')
+    parser.add_argument('evaluator_path')
     parser.add_argument('-p', '--partition', default="")
     parser.add_argument('-t', '--time-limit', default=600)
     parser.add_argument('-m', '--memory-limit', default=0)
     parser.add_argument('-a', '--submission-id', default=None)
-    parser.add_argument('-s', '--testsuite-id', default=None)
+    parser.add_argument('-s', '--task-id', default=None)
     parser.add_argument('-e', '--venv-base-dir', default=None)
     parser.add_argument('--force', action=argparse.BooleanOptionalAction)
     parser.add_argument('--use-slurm', action=argparse.BooleanOptionalAction)
     args = parser.parse_args()
 
     output = run(
-        args.testsuite_path,
+        args.task_path,
         args.submission_path,
-        args.runner_kit_path,
+        args.evaluator_path,
         partition=args.partition,
         venv_base_dir=args.venv_base_dir,
         time_limit=args.time_limit,
         memory_limit=args.memory_limit,
         submission_id=args.submission_id,
-        testsuite_id=args.testsuite_id,
+        task_id=args.task_id,
         force=args.force,
         use_slurm=args.use_slurm,
     )

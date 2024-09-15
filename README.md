@@ -1,6 +1,6 @@
 # aicon Runner
 
-A program designed to monitor and execute submissions and test suites from aicon.
+A program designed to monitor and evaluate submissions from aicon.
 
 This version is a rewrite of the original aicon Runner, now utilizing Celery for better jobs management and performance.
 
@@ -31,7 +31,7 @@ python -m aicon_runner --concurrency 5
 
 * Ensure that the `AICON_AUTH_TOKEN` is associated with an admin user in the system.
 * If `SLURM_VENV_DIRECTORY` is set, you must first run a single job (submission) to initialize the task environment. Submitting multiple jobs simultaneously may lead to race conditions during environment setup.
-* `RUNNER_RUNNER_KIT_PATH` must be either a zip file or a valid Git URL pointing to a GitHub repository.
+* `RUNNER_EVALUATOR_PATH` must be either a zip file or a valid Git URL pointing to a GitHub repository.
 
 ## Systemd Service
 

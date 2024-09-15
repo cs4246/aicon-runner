@@ -164,5 +164,5 @@ cython_debug/
 # Default directories
 runs
 submissions
-testsuites
+tasks
 venvs
