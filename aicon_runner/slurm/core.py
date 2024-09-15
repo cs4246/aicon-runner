@@ -76,6 +76,7 @@ def run(
         testsuite_id: Optional[int] = None,
         submission_id: Optional[int] = None,
         partition: str = "",
+        gpus: Optional[str] = None,
         base_dir: str = "./runs",
         venv_base_dir: Optional[str] = "./venvs",
         force: bool = False,
@@ -97,6 +98,7 @@ def run(
         'stderr_file': stderr_file,
         'output_json_path': output_json_path,
         'partition': partition,
+        'gpus': gpus or "",
         'slurm_memory_limit': to_slurm_memory(slurm_memory_limit), # set the minimum memory of the job
         'slurm_time_limit': to_slurm_time(slurm_time_limit), # set the time limit of the job, multiple of 1 minute
         'run_memory_limit': str(memory_limit),

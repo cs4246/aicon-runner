@@ -3,6 +3,7 @@
 #SBATCH --output={stdout_file}
 #SBATCH --error={stderr_file}
 #SBATCH --partition={partition}
+#SBATCH --gpus={gpus}
 #SBATCH --time={slurm_time_limit}
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
