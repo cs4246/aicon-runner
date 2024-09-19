@@ -82,7 +82,7 @@ def run(
         force: bool = False,
         use_slurm: bool = True,
         slurm_time_limit: Optional[int] = 3600,
-        slurm_memory_limit: Optional[int] = 3600,
+        slurm_memory_limit: Optional[int] = None,
     ) -> dict:
     run_id = f"{task_id}-{submission_id}" if task_id is not None and submission_id is not None else str(time.time())
     output_dir = os.path.join(base_dir, run_id)
