@@ -27,4 +27,7 @@ vm_current=$(free -m -t | grep Total | awk -F ' ' '{print $3}')
 vm_total=$((vm_current + {run_memory_limit}))
 ulimit -v $vm_total
 
+cd $ENV_PATH
+export HOME=$ENV_PATH
+
 timeout -k {run_time_limit}s -s 9 -v {run_time_limit}s aicon_evaluator -o "{output_json_path}"

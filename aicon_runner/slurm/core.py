@@ -1,10 +1,10 @@
-import hashlib
 import os
 import subprocess
 import shutil
 import json
 import time
-import logging
+import re
+
 from ..utils import hash_str, hash_file_path
 from .exceptions import MalformedOutputError, EvaluationError, TaskError, SubmissionError, \
                         TimeLimitExceeded, MemoryLimitExceeded, PackageError, builtin_exceptions
@@ -16,6 +16,10 @@ SCRIPTS_DIR = os.path.join(BASE_PATH, 'scripts')
 SCRIPT_CREATE_ENV = os.path.join(SCRIPTS_DIR, 'create-venv.sh')
 SCRIPT_SUBMIT_ENV_OVERLAY = os.path.join(SCRIPTS_DIR, 'submit-env-overlay.sh')
 SCRIPT_SUBMIT_ENV_TMP = os.path.join(SCRIPTS_DIR, 'submit-env-tmp.sh')
+
+
+def replace_all_dirs(text):
+    return re.sub(r'(\/(?:[^\/\s]+\/)*|\.{1,2}(\/(?:[^\/\s]+\/)*)(?=[^\/\s]*$))', '/', text)
 
 
 def to_slurm_time(seconds: Optional[int] = None) -> str:
@@ -42,7 +46,7 @@ def create_venv(
         force: bool = False,
         use_slurm: bool = True,
     ) -> str:
-    env_dir = os.path.join(base_dir, env_name)
+    env_dir = os.path.abspath(os.path.join(base_dir, env_name))
     print(f'==> {env_dir}')
     if os.path.exists(env_dir) and not force:
         print('Using existing virtual environment.')
@@ -83,14 +87,15 @@ def run(
         use_slurm: bool = True,
         slurm_time_limit: Optional[int] = 3600,
         slurm_memory_limit: Optional[int] = None,
+        obfuscate: bool = True,
     ) -> dict:
     run_id = f"{task_id}-{submission_id}" if task_id is not None and submission_id is not None else str(time.time())
     output_dir = os.path.join(base_dir, run_id)
     os.makedirs(output_dir, exist_ok=True)
-    stdout_file = os.path.join(output_dir, 'stdout.log')
-    stderr_file = os.path.join(output_dir, 'stderr.log')
-    output_json_path = os.path.join(output_dir, 'output.json')
-    submit_script_path = os.path.join(output_dir, 'submit.sh')
+    stdout_file = os.path.abspath(os.path.join(output_dir, 'stdout.log'))
+    stderr_file = os.path.abspath(os.path.join(output_dir, 'stderr.log'))
+    output_json_path = os.path.abspath(os.path.join(output_dir, 'output.json'))
+    submit_script_path = os.path.abspath(os.path.join(output_dir, 'submit.sh'))
 
     config = {
         'job_name': run_id,
@@ -147,6 +152,10 @@ def run(
     if os.path.isfile(stderr_file):
         with open(stderr_file, 'r') as f:
             stderr = f.read()
+
+    if obfuscate:
+        stdout = replace_all_dirs(stdout)
+        stderr = replace_all_dirs(stderr)
 
     print(stdout if return_code == 0 else stderr)
 
