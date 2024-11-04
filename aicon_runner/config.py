@@ -26,9 +26,13 @@ slurm_venv_force=bool(int(os.getenv("SLURM_VENV_FORCE")))
 slurm_run_partition=os.getenv("SLURM_RUN_PARTITION", "normal")
 slurm_run_time_limit=int(os.getenv("SLURM_RUN_TIME_LIMIT"))
 slurm_run_memory_limit=int(os.getenv("SLURM_RUN_MEMORY_LIMIT"))
+slurm_conty_path=os.getenv("SLURM_CONTY_PATH", None)
 
 if slurm_venv_directory == "":
     slurm_venv_directory = None
+
+if slurm_conty_path == "":
+    slurm_conty_path = None
 
 os.makedirs(runner_runs_path, exist_ok=True)
 os.makedirs(runner_tasks_path, exist_ok=True)

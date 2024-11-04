@@ -35,6 +35,7 @@ def evaluate(task_data: dict, submission_data: dict):
             task_path,
             submission_path,
             evaluator_path,
+            conty_path = config.slurm_conty_path,
             time_limit = task_data["run_time_limit"] or config.slurm_run_time_limit,
             memory_limit = task_data["memory_limit"] or config.slurm_run_memory_limit,
             task_id = task_data["id"],

@@ -23,4 +23,4 @@ class PackageError(Exception):
     pass
 
 builtin_exceptions = [obj for name, obj in inspect.getmembers(builtins, inspect.isclass)
-                      if issubclass(obj, BaseException) and obj is not BaseException]
+                      if issubclass(obj, BaseException) and obj is not BaseException and "Error" in name]

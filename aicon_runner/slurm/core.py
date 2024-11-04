@@ -16,6 +16,7 @@ SCRIPTS_DIR = os.path.join(BASE_PATH, 'scripts')
 SCRIPT_CREATE_ENV = os.path.join(SCRIPTS_DIR, 'create-venv.sh')
 SCRIPT_SUBMIT_ENV_OVERLAY = os.path.join(SCRIPTS_DIR, 'submit-env-overlay.sh')
 SCRIPT_SUBMIT_ENV_TMP = os.path.join(SCRIPTS_DIR, 'submit-env-tmp.sh')
+SCRIPT_SUBMIT_ENV_TMP_CONTY = os.path.join(SCRIPTS_DIR, 'submit-env-tmp-conty.sh')
 
 
 def replace_all_dirs(text):
@@ -75,6 +76,7 @@ def run(
         task_path: str,
         submission_path: str,
         evaluator_path: str,
+        conty_path: Optional[str] = None,
         time_limit: Optional[int] = 600,
         memory_limit: Optional[int] = 0,
         task_id: Optional[int] = None,
@@ -87,7 +89,7 @@ def run(
         use_slurm: bool = True,
         slurm_time_limit: Optional[int] = 3600,
         slurm_memory_limit: Optional[int] = None,
-        obfuscate: bool = True,
+        obfuscate: bool = False,
     ) -> dict:
     run_id = f"{task_id}-{submission_id}" if task_id is not None and submission_id is not None else str(time.time())
     output_dir = os.path.join(base_dir, run_id)
@@ -112,7 +114,12 @@ def run(
 
     if venv_base_dir is None:
         config['env_name'] = hash_str(run_id)
-        config['packages'] = ' '.join([evaluator_path, task_path, submission_path])
+        if conty_path is not None:
+            config['conty'] = conty_path
+            config['packages'] = ' '.join([evaluator_path, task_path])
+            config['submission'] = submission_path
+        else:
+            config['packages'] = ' '.join([evaluator_path, task_path, submission_path])
     else:
         base_env_name = hash_file_path(task_path)
         try:
@@ -128,7 +135,11 @@ def run(
 
     print(config)
 
-    template_submit_script_path = SCRIPT_SUBMIT_ENV_TMP if venv_base_dir is None else SCRIPT_SUBMIT_ENV_OVERLAY
+    if venv_base_dir is None:
+       template_submit_script_path = SCRIPT_SUBMIT_ENV_TMP_CONTY if conty_path is not None else SCRIPT_SUBMIT_ENV_TMP
+    else:
+       template_submit_script_path = SCRIPT_SUBMIT_ENV_OVERLAY
+
     with open(template_submit_script_path, 'r') as f:
         script = f.read()
     for k, v in config.items():
@@ -157,9 +168,11 @@ def run(
         stdout = replace_all_dirs(stdout)
         stderr = replace_all_dirs(stderr)
 
-    print(stdout if return_code == 0 else stderr)
+    print(stdout)
+    print(stderr)
 
-    if return_code != 0:
+    # BUG: CONTY doesn't return the appropritate error code
+    if conty_path is not None or return_code != 0:
         if 'timeout: sending signal' in stderr or 'DUE TO TIME LIMIT' in stderr:
             raise TimeLimitExceeded(stderr)
         elif 'MemoryError' in stderr or 'DUE TO MEMORY LIMIT' in stderr:
@@ -170,7 +183,8 @@ def run(
             for exception in builtin_exceptions:
                 if exception.__name__ in stderr:
                     raise exception(stderr)
-            raise EvaluationError(stderr)
+            if 'error' in stderr.lower():
+                raise EvaluationError(stderr)
 
     try:
         with open(output_json_path, 'r') as f:
