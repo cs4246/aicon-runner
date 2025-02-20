@@ -8,6 +8,7 @@ broker_user = os.getenv("CELERY_BROKER_USER")
 broker_password = os.getenv("CELERY_BROKER_PASSWORD")
 broker_host = os.getenv("CELERY_BROKER_HOST")
 broker_port = os.getenv("CELERY_BROKER_PORT")
+broker_vhost = os.getenv("CELERY_BROKER_VHOST")
 
 aicon_url = os.getenv("AICON_URL")
 aicon_auth_token = os.getenv("AICON_AUTH_TOKEN")
